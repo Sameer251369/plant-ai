@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        /* Import Google Font for a modern look */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f7f7f5; /* Light off-white */
+    /* Subtle background texture for a 'natural/paper' feel */
+    background-image: url('pexels-vikas-lone-825341464-34015800.jpg');
+    color: #333;
+    line-height: 1.6;
+}
+
+/* --- Hero Section with Background Image --- */
+.hero-section {
+    /* REPLACE 'your-farm-image.jpg' with a high-quality, relevant photo */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('your-farm-image.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #ffffff;
+    padding: 100px 20px;
+    text-align: center;
+}
+
+.hero-content h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.hero-content p {
+    font-size: 1.2em;
+    font-weight: 400;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* --- Services Container and Cards --- */
+.services-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 50px 20px;
+    gap: 30px; /* Space between cards */
+}
+
+.service-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); /* Soft, subtle shadow */
+    padding: 30px;
+    max-width: 300px;
+    text-align: center;
+    flex-basis: calc(25% - 30px); /* Four cards per row (approx) */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e0e0e0; /* Subtle border */
+}
+
+.service-card:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.service-card h3 {
+    color: #28a745; /* A vibrant green for Agro AI */
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.service-card p {
+    color: #666;
+    font-size: 0.95em;
+}
+
+/* Icons styling */
+.service-card i {
+    font-size: 2.5em;
+    display: block;
+    margin: 0 auto;
+    color: #28a745;
+}
+
+/* Media Query for Responsiveness */
+@media (max-width: 992px) {
+    .service-card {
+        flex-basis: calc(50% - 30px); /* Two cards per row on tablets */
+    }
+}
+
+@media (max-width: 576px) {
+    .service-card {
+        flex-basis: 100%; /* One card per row on phones */
+    }
+    .hero-content h1 {
+        font-size: 2.5em;
+    }
+}
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro AI - Services</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="hero-section">
+        <div class="hero-content">
+            <h1>Our Agro AI Services</h1>
+            <p>Empowering your farm with intelligent, data-driven plant health solutions.</p>
+        </div>
+    </header>
+
+    <section class="services-container">
+        <div class="service-card">
+            <i class="icon-diagnose">🔬</i>
+            <h3>Instant Disease Diagnosis</h3>
+            <p>Upload a photo and get immediate, AI-driven identification of plant diseases and severity.</p>
+        </div>
+
+        <div class="service-card">
+            <i class="icon-treat">🧪</i>
+            <h3>Personalized Treatment Recommendations</h3>
+            <p>Receive tailored treatment plans, from organic remedies to chemical solutions, with detailed instructions.</p>
+        </div>
+
+        <div class="service-card">
+            <i class="icon-alert">⚠️</i>
+            <h3>Preventative Care & Alerts</h3>
+            <p>Get timely alerts based on local weather and regional disease trends to protect your crops proactively.</p>
+        </div>
+
+        <div class="service-card">
+            <i class="icon-history">📈</i>
+            <h3>Crop Health History & Tracking</h3>
+            <p>Monitor your plants' health journey over time, track treatment effectiveness, and optimize future decisions.</p>
+        </div>
+
+    </section>
+
+</body>
+</html>

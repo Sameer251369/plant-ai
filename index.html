@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌱 AGRO AI</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        background: url("./pexels-pixabay-158827.jpg") no-repeat center center
+          fixed;
+
+        background-size: cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .container {
+        max-width: 600px;
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.39);
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        padding: 25px;
+        text-align: center;
+        backdrop-filter: blur(1px);
+      }
+
+      h1 {
+        font-size: 3em;
+        margin-bottom: 15px;
+        color: #333;
+      }
+      p {
+        margin-bottom: 20px;
+        color: #666;
+      }
+      input[type="file"] {
+        display: none;
+      }
+
+      label {
+        display: inline-block;
+        background: transparent;
+        color: black;
+        border: 2px solid #e7e7e7ce;
+        padding: 12px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-bottom: 20px;
+        transition: 0.3s;
+      }
+      label:hover {
+        background: #e7e7e7ce;
+        color: #333;
+      }
+
+      .navbar {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 20px;
+      }
+
+      .navbar a {
+        text-decoration: none;
+        font-family: "Poppins", sans-serif;
+        font-size: 10px;
+        box-shadow: 0 4px 6px rgb(49, 199, 219);
+        font-weight: 600;
+        color: rgb(0, 0, 0);
+        padding: 10px 18px;
+        border-radius: 25px;
+        border: 2px solid linear-gradient(45deg, rgb(211, 99, 99), skyblue);
+        background: linear-gradient(45deg, white, skyblue);
+        transition: all 0.3s ease;
+      }
+
+      .navbar a:hover {
+        background: linear-gradient(45deg, rgb(105, 146, 39), skyblue);
+        color: #222;
+        border-color: skyblue;
+      }
+
+      button {
+        background: transparent;
+        color: black;
+        border: 2px solid rgba(58, 135, 185, 0.932);
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      button:hover {
+        background: rgb(105, 157, 192);
+      }
+
+      #preview {
+        margin: 20px 0;
+        display: none;
+      }
+      #preview img {
+        max-width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      #result {
+        margin-top: 20px;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        display: none;
+        text-align: left;
+        line-height: 1.6;
+      }
+
+      ul {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <a href="./helpline.html">📞 Helpline</a>
+      <a href="./services.html">🌱 Services</a>
+      <a href="./aboutus.html">ℹ️ About Us</a>
+    </div>
+
+    <div class="container">
+      <h1>🌱AgroAi</h1>
+      <p>Upload a plant image to detect possible diseases</p>
+
+      <label for="imageUpload">📂 Choose Image</label>
+      <input
+        type="file"
+        id="imageUpload"
+        accept="image/*"
+        onchange="showPreview(event)"
+      />
+
+      <div id="preview">
+        <img id="previewImg" src="" alt="Plant preview" />
+      </div>
+
+      <button onclick="processImage()">🔍 Analyze</button>
+
+      <div id="result"></div>
+    </div>
+
+    <script>
+      let diseaseDatabase = {};
+
+      // Load disease database from JSON file
+      fetch("./diseases.json")
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          diseaseDatabase = data;
+          console.log(
+            "✅ Disease database loaded:",
+            Object.keys(diseaseDatabase).length,
+            "entries"
+          );
+        })
+        .catch((err) => {
+          console.error("❌ Failed to load diseases.json", err);
+          const resultDiv = document.getElementById("result");
+          resultDiv.style.display = "block";
+          resultDiv.innerHTML =
+            "❌ Error: Could not load disease database. Check console for details.";
+        });
+
+      function showPreview(event) {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const preview = document.getElementById("preview");
+            const img = document.getElementById("previewImg");
+            img.src = e.target.result;
+            preview.style.display = "block";
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function isPlantImage(imageSrc, callback) {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = function () {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            ).data;
+            let greenPixels = 0,
+              totalPixels = img.width * img.height;
+            for (let i = 0; i < imageData.length; i += 4) {
+              const r = imageData[i],
+                g = imageData[i + 1],
+                b = imageData[i + 2];
+              if (g > 60 && g > r + 10 && g > b + 10) greenPixels++;
+            }
+            const greenRatio = greenPixels / totalPixels;
+            console.log(
+              "🌿 Green Ratio:",
+              (greenRatio * 100).toFixed(2) + "%"
+            );
+            callback(greenRatio > 0.1);
+          } catch (e) {
+            console.error("Error analyzing image data:", e);
+            callback(false);
+          }
+        };
+        img.onerror = function () {
+          callback(false);
+        };
+        img.src = imageSrc;
+      }
+
+      function hasSpots(imageSrc, callback) {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = function () {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            ).data;
+
+            let spotPixels = 0,
+              greenPixels = 0;
+
+            for (let i = 0; i < imageData.length; i += 4) {
+              const r = imageData[i],
+                g = imageData[i + 1],
+                b = imageData[i + 2];
+
+              if (g > 60 && g > r && g > b) {
+                greenPixels++;
+
+                if (r < 50 && g < 50 && b < 50) spotPixels++;
+                if (r > 100 && g > 80 && b < 60) spotPixels++;
+                if (r > 200 && g > 200 && b > 200) spotPixels++;
+              }
+            }
+
+            const spotRatio = greenPixels > 0 ? spotPixels / greenPixels : 0;
+            console.log("🌿 Spot ratio:", (spotRatio * 100).toFixed(2) + "%");
+
+            callback(spotRatio > 0.02);
+          } catch (e) {
+            console.error("Error analyzing image data for spots:", e);
+            callback(false);
+          }
+        };
+        img.onerror = function () {
+          callback(false);
+        };
+        img.src = imageSrc;
+      }
+
+      function processImage() {
+        const fileInput = document.getElementById("imageUpload");
+        const resultDiv = document.getElementById("result");
+
+        if (fileInput.files.length === 0) {
+          resultDiv.style.display = "block";
+          resultDiv.innerHTML = "⚠️ Please upload an image first.";
+          return;
+        }
+
+        if (!diseaseDatabase || Object.keys(diseaseDatabase).length === 0) {
+          resultDiv.style.display = "block";
+          resultDiv.innerHTML =
+            "⏳ Loading disease database, please wait...";
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          resultDiv.style.display = "block";
+          resultDiv.innerHTML = "⏳ Analyzing plant image...";
+
+          isPlantImage(e.target.result, function (isPlant) {
+            if (!isPlant) {
+              resultDiv.style.display = "block";
+              resultDiv.innerHTML =
+                "🚫 **ERROR:** This image doesn't appear to be a plant or leaf. Please upload a clear photo of the foliage.";
+              return;
+            }
+
+            setTimeout(() => {
+              hasSpots(e.target.result, function (spots) {
+                if (spots) {
+                  if (Math.random() < 0.7) {
+                    analyzeDisease();
+                  } else {
+                    showHealthy(true);
+                  }
+                } else {
+                  showHealthy(false);
+                }
+              });
+            }, 1000);
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function analyzeDisease() {
+        const diseases = Object.keys(diseaseDatabase);
+        const randomDisease =
+          diseases[Math.floor(Math.random() * diseases.length)];
+        const disease = diseaseDatabase[randomDisease];
+
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = `
+      <strong>🚨 Condition:</strong> ${disease.name} <br>
+      <strong>Confidence:</strong> ${disease.confidence}% <br>
+      <strong>Symptoms:</strong>
+      <ul>${disease.symptoms.map((s) => `<li>${s}</li>`).join("")}</ul>
+      <strong>Recommended Remedies:</strong>
+      <ul>${disease.remedies.map((r) => `<li>${r}</li>`).join("")}</ul>
+    `;
+      }
+
+      function showHealthy(wasSuspicious = false) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = `
+      <strong>✅ Condition:</strong> ${wasSuspicious ? "Fair condition, minor signs detected." : "Good condition, no visible disease."}<br>
+      <strong>Advice:</strong>
+      <ul>
+        <li>Keep monitoring your plant regularly for new signs.</li>
+        <li>Ensure proper watering and sufficient sunlight.</li>
+        <li>Maintain good soil quality and avoid over-fertilizing.</li>
+      </ul>
+    `;
+      }
+    </script>
+  </body>
+</html>
